@@ -1,37 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src='annyang.js'></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+
+<style> 
+	#my_modal{
+		display: none;
+        width: 300px;
+        padding: 20px 60px;
+        background-color: #fefefe;
+        border: 1px solid #888;
+        border-radius: 3px;
+	}
+</style>
+
 <script>
-    annyang.start({ autoRestart: false, continuous: true })
-    annyang.setLanguage("ko")
-	var recognition = annyang.getSpeechRecognizer();
-	var final_transcript = '';
-    recognition.interimResults = true;
-    
-	recognition.onresult = function(event) {
-		var interim_transcript = '';
-		final_transcript = '';
-		for (var i = event.resultIndex; i < event.results.length; ++i) {
-			if (event.results[i].isFinal) {
-				final_transcript += event.results[i][0].transcript;
-				console.log("final_transcript="+final_transcript);
-				//annyang.trigger(final_transcript); //If the sentence is "final" for the Web Speech API, we can try to trigger the sentence
-			} else {
-				interim_transcript += event.results[i][0].transcript;
-				console.log("interim_transcript="+interim_transcript);
-			}
-		}
-		document.getElementById('result').innerHTML =  '중간값:='+interim_transcript+'<br/>결과값='+final_transcript;
-		console.log('interim='+interim_transcript+'|final='+final_transcript);
+
+	var help = true;
+ 
+	annyang.setLanguage('ko');
+	 
+	const triggered = function(){
+		console.log("위협 감지!");
+		modal('my_modal'); 
 	};
+	const commands = {
+		'돈 내놔 (*tag)' : triggered, 
+		'죽고 싶어 (*tag)' : triggered,
+	}
+	
+	
+	annyang.addCommands(commands); 
+    annyang.start({ autoRestart: false, continuous: true });
+	// annyang.addCallback('result',function(user_said){
+	// 	const recognized = document.getElementById("recognized"); 
+	// 	recognized.innerHTML = user_said.join('\n');
+	// }) 
+
+	function modal(id) {
+		var zIndex = 9999;
+		var modal = document.getElementById(id);
+
+		// 모달 div 뒤 배경
+		var bg = document.createElement('div');
+		bg.setStyle({
+			position: 'fixed',
+			zIndex: zIndex,
+			left: '0px',
+			top: '0px',
+			width: '100%',
+			height: '100%',
+			overflow: 'auto', 
+			backgroundColor: 'rgba(0,0,0,0.4)'
+		});
+		document.body.append(bg);
+
+		// 닫기 버튼 처리 
+		modal.querySelector('.close_btn').addEventListener('click', function() {  
+			bg.remove();
+			modal.style.display = 'none';  
+			console.log("도움 필요 없음");
+		});
+
+		modal.setStyle({
+			position: 'fixed',
+			display: 'block',
+			boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+
+			// 시꺼먼 레이어 보다 한칸 위에 보이기
+			zIndex: zIndex + 1,
+
+			// div center 정렬
+			top: '50%',
+			left: '50%',
+			transform: 'translate(-50%, -50%)',
+			msTransform: 'translate(-50%, -50%)',
+			webkitTransform: 'translate(-50%, -50%)'
+		});
+
+		//카운트 다운 
+		
+		setInterval(()=>{ 
+			var count = document.getElementById("count"); 
+			if (count.innerHTML>0)
+				count.innerHTML = Number(count.innerHTML)-1;
+			else{
+				clearInterval(this);
+				bg.remove();
+				modal.style.display = 'none';
+				count.innerHTML = 10;
+			}
+		},1000); 
+	}
+
+	// Element 에 style 한번에 오브젝트로 설정하는 함수 추가
+	Element.prototype.setStyle = function(styles) {
+		for (var k in styles) this.style[k] = styles[k];
+		return this;
+	};
+ 
 </script>
 </head>
 <body class="" id="grid">
-<br/><br/>
+<!-- <br/><br/>
 한국어 음성 처리 테스트<br/><br/>
-<div id='result'>
+<div id='recognized'>
 결과가 없습니다.
+</div> -->
+<div class="bg"></div>
+<div id="my_modal">
+	<h1>위협이 감지되었습니다!</h1>
+	<h3>신고할까요?</h3>
+	<button class="close_btn"> 아니요 괜찮습니다. <i id="count">10</i></button>
 </div>
+ 
 </body>
+
 </html> 
