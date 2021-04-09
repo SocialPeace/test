@@ -1,4 +1,3 @@
-
 import cv2
 
 cap = cv2.VideoCapture(0)
@@ -37,3 +36,24 @@ while True:
         break
 cap.release()
 cv2.destroyAllWindows()
+
+
+'''
+(*1) img_last 초기화 
+여기에 바로 앞 이미지가 기록됨 
+
+(*2) 
+비교하기 쉽게 하기 위해서 흑백 이미지로 변환
+그레이스케일로 변환하고 블러 처리를 한 후 이진화
+
+(*3)
+cvs.absdiff()
+두 이미지의 차이를 확인 
+
+(*4)
+cvs.findContours()
+윤곽을 추출한 결과에 녹색 사각형을 렌더링 
+
+(*5)
+img_last에 이미지 기록 
+'''
